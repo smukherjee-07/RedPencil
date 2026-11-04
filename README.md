@@ -373,19 +373,8 @@ RedPencil's methodology and report reference the following where applicable:
 
 ---
 
-## 👥 Team
-
-Developed for the **DataOps Innovation Hackathon** (PS-1: AI Agent for Automated Penetration Testing).
-
-| Role | Member |
-|---|---|
-| `<role>` | `<name>` |
-| `<role>` | `<name>` |
-
----
-
 ## 📄 License
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
-> **Ethical Testing Notice:** RedPencil is built strictly for authorized security assessments, hackathon sandbox testing, and defensive auditing.
+> **Ethical Testing Notice:** RedPencil is built for authorized security assessments, hackathon sandbox testing, and defensive auditing.

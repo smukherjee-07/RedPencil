@@ -1,12 +1,4 @@
+/data/
 __pycache__/
-*.py[cod]
-.venv/
-venv/
 .env
-.pytest_cache/
-.coverage
-htmlcov/
-dist/
-build/
-/artifacts/*
-!/artifacts/.gitkeep
+venv/

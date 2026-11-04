@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RedPencil | AI Penetration Testing Agent</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header class="app-header">
+        <div class="brand">
+            <h1>RedPencil</h1>
+            <span class="badge">VAPT Agent</span>
+        </div>
+        <div class="actions">
+            <button id="generateReportBtn" class="btn secondary">Generate Report</button>
+            <button id="downloadReportBtn" class="btn primary">Download Report</button>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- Assessment Input & Reasoning Stream -->
+        <section class="card conversation-pane">
+            <h2>Assessment Request & Scope</h2>
+            <form id="assessmentForm">
+                <label for="promptInput">Prompt / Objective</label>
+                <textarea id="promptInput" rows="3" placeholder="Perform authorized network reconnaissance and web security audit..."></textarea>
+                
+                <label for="targetInput">Authorized Targets (comma separated)</label>
+                <input type="text" id="targetInput" placeholder="192.168.1.10, 10.0.0.5" required>
+                
+                <label for="excludedInput">Excluded Targets</label>
+                <input type="text" id="excludedInput" placeholder="192.168.1.50">
+
+                <button type="submit" class="btn primary" id="startBtn">Launch Assessment</button>
+            </form>
+
+            <h3>Agent Reasoning &amp; Execution Plan</h3>
+            <div id="planOutput" class="console-box">Awaiting task initiation...</div>
+        </section>
+
+        <!-- Tool Execution Timeline & Findings Feed -->
+        <section class="card results-pane">
+            <h2>Live Status Feed</h2>
+            <div id="executionTimeline" class="timeline-list">
+                <div class="empty-state">No scans in progress.</div>
+            </div>
+
+            <h2>Normalized Findings</h2>
+            <div class="table-wrapper">
+                <table id="findingsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Severity</th>
+                            <th>Asset</th>
+                            <th>Tool</th>
+                            <th>Finding</th>
+                        </tr>
+                    </thead>
+                    <tbody id="findingsBody">
+                        <tr><td colspan="5" class="empty-state">No vulnerabilities discovered yet.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal for Human Approval Gate -->
+    <div id="approvalModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <h3>Approval Required for Active Action</h3>
+            <p id="modalDescription">An active validation command requires explicit analyst authorization before proceeding.</p>
+            <div class="modal-details" id="modalDetails"></div>
+            
+            <label for="analystNotes">Analyst Justification / Notes</label>
+            <textarea id="analystNotes" rows="2" placeholder="Authorized testing window..."></textarea>
+
+            <div class="modal-actions">
+                <button id="rejectActionBtn" class="btn danger">Deny Action</button>
+                <button id="approveActionBtn" class="btn success">Approve Action</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

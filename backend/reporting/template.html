@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RedPencil VAPT Assessment Report</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #222;
+            line-height: 1.5;
+            margin: 40px;
+            font-size: 13px;
+        }
+        h1, h2, h3 {
+            color: #0f172a;
+            border-bottom: 1px solid #cbd5e1;
+            padding-bottom: 6px;
+        }
+        h1 { font-size: 24px; text-align: center; margin-bottom: 30px; }
+        h2 { font-size: 16px; margin-top: 25px; }
+        h3 { font-size: 14px; margin-top: 15px; }
+        .meta-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #cbd5e1;
+            padding: 8px 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: bold;
+            border-radius: 3px;
+            color: #fff;
+        }
+        .badge-CRITICAL { background-color: #dc2626; }
+        .badge-HIGH { background-color: #ea580c; }
+        .badge-MEDIUM { background-color: #d97706; }
+        .badge-LOW { background-color: #2563eb; }
+        .badge-INFO { background-color: #64748b; }
+        .finding-card {
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid #0f172a;
+            padding: 12px;
+            margin-bottom: 15px;
+            background-color: #ffffff;
+        }
+        pre {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            font-size: 11px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Vulnerability Assessment &amp; Penetration Testing (VAPT) Report</h1>
+
+    <!-- 7.1 Executive Summary -->
+    <h2>7.1 Executive Summary</h2>
+    <div class="meta-box">
+        <p><strong>Target Scope:</strong> {{ target_scope | join(', ') }}</p>
+        <p><strong>Assessment Date:</strong> {{ generated_at }}</p>
+        <p><strong>Total Vulnerabilities Identified:</strong> {{ findings | length }}</p>
+    </div>
+    <p>
+        This document provides the technical assessment and risk analysis executed by the RedPencil automated VAPT agent.
+        Testing strictly observed authorized boundaries and regulatory evaluation protocols.
+    </p>
+
+    <!-- 7.2 Assessment Methodology -->
+    <h2>7.2 Assessment Methodology</h2>
+    <p><strong>Rules of Engagement:</strong> Standard automated reconnaissance, passive discovery, and authorized active scanning within sandbox limits.</p>
+    <p><strong>Tools Executed:</strong> {{ tools_used | join(', ') }}</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Tool Name</th>
+                <th>Run ID</th>
+                <th>Target</th>
+                <th>Execution Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for run in tool_runs %}
+            <tr>
+                <td>{{ run.tool_name }}</td>
+                <td>{{ run.run_id }}</td>
+                <td>{{ run.target }}</td>
+                <td>{{ run.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 7.3 Severity Distribution -->
+    <h2>7.3 Severity Distribution</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Critical</th>
+                <th>High</th>
+                <th>Medium</th>
+                <th>Low</th>
+                <th>Informational</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ severity_counts.CRITICAL }}</td>
+                <td>{{ severity_counts.HIGH }}</td>
+                <td>{{ severity_counts.MEDIUM }}</td>
+                <td>{{ severity_counts.LOW }}</td>
+                <td>{{ severity_counts.INFO }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- 7.4 Detailed Vulnerability Findings -->
+    <h2>7.4 Detailed Vulnerability Findings</h2>
+    {% for finding in findings %}
+    <div class="finding-card">
+        <h3>[{{ finding.finding_id }}] {{ finding.title }}</h3>
+        <p>
+            <span class="badge badge-{{ finding.severity }}">{{ finding.severity }}</span>
+            <strong>Asset:</strong> {{ finding.asset }}:{{ finding.port }} |
+            <strong>Source:</strong> {{ finding.source_tool }} |
+            <strong>Confidence:</strong> {{ finding.confidence_level * 100 }}%
+        </p>
+        <p><strong>Identifiers:</strong> {{ finding.cve_id or 'N/A' }} / {{ finding.cwe_id or 'N/A' }}</p>
+        <p><strong>Description:</strong> {{ finding.description }}</p>
+        <p><strong>Supporting Evidence:</strong></p>
+        <pre>{{ finding.supporting_evidence }}</pre>
+    </div>
+    {% endfor %}
+
+    <!-- 7.5 Impact and Remediation -->
+    <h2>7.5 Impact and Remediation</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Finding</th>
+                <th>Technical Impact</th>
+                <th>Actionable Remediation</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for finding in findings %}
+            <tr>
+                <td>{{ finding.title }}</td>
+                <td>Potential unauthorized exposure or service disruption on port {{ finding.port }}.</td>
+                <td>Apply vendor patch updates, restrict port exposure via firewall, and sanitize web inputs.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 7.6 Assessment Limitations -->
+    <h2>7.6 Assessment Limitations</h2>
+    <ul>
+        <li>Testing was constrained strictly to defined targets: {{ target_scope | join(', ') }}.</li>
+        <li>Active offensive exploitation tools required manual analyst approval checkpoints.</li>
+        <li>Assessment completed at {{ generated_at }}.</li>
+    </ul>
+
+</body>
+</html>

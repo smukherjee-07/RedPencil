@@ -1,1 +1,1 @@
-"""Placeholder for import parser tests."""
+"""Tests for parsing supported tool output formats."""

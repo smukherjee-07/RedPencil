@@ -10,6 +10,8 @@
 [![Platform](https://img.shields.io/badge/platform-Web-lightgrey)]()
 [![Scope](https://img.shields.io/badge/Scope-Lab%20Only-red)]()
 
+</div>
+
 ```
 Request + target list -> local Qwen plan -> recorded scanner export import
 -> normalization / deduplication / ranking -> analyst review -> report
@@ -26,7 +28,6 @@ Request + target list -> local Qwen plan -> recorded scanner export import
 - [Licensing Assumptions](#-licensing-assumptions)
 - [Known Limitations](#-known-limitations)
 - [Troubleshooting](#-troubleshooting)
-- [Team](#-team)
 - [License](#-license)
 
 ---
@@ -57,8 +58,8 @@ RedPencil is a conversational AI agent that guides an **authorized** security as
 
 ```
 ┌─────────────────┐       ┌────────────────┐       ┌────────────────────────┐
-│ Analyst Request │ ────> │ Scope Check &  │ ────> │ Recorded Output Import│
-│ & Target Input  │       │ Qwen Planning  │       │ (Nmap/ZAP/Nessus/etc.)│
+│ Analyst Request │ ────> │ Scope Check &  │ ────> │ Recorded Output Import │
+│ & Target Input  │       │ Qwen Planning  │       │ (Nmap/ZAP/Nessus/etc.) │
 └─────────────────┘       └────────────────┘       └───────────┬────────────┘
                                                                │
                                                                v
@@ -79,8 +80,6 @@ RedPencil is a conversational AI agent that guides an **authorized** security as
 ---
 
 ## 🔌 Integration Status
-
-All seven tools named in the problem statement are listed below with their real status. **Update this table to match what actually runs before you submit.**
 
 | Tool | Role | Status | File | Notes |
 |---|---|---|---|---|
@@ -136,7 +135,7 @@ The import endpoint accepts analyst-provided files up to 2 MB. No sample scanner
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/<your-username>/RedPencil.git
+git clone https://github.com/smukherjee-07/RedPencil.git
 cd RedPencil
 ```
 
@@ -234,13 +233,19 @@ The legacy files under `samples/` are empty placeholders, not scanner results. U
 
 ```text
 RedPencil/
-├── README.md  LICENSE  .gitignore  .env.example
+├── README.md      
+│
+├── LICENSE/
+├── .gitignore/
+├── .env.example/
 │
 ├── docs/
 │   ├── architecture.md          # current architecture and security boundaries
 │   └── integration_matrix.md    # seven tools with verified status and limits
 │
 ├── data/                        # GITIGNORED: raw tool outputs, database, audit log
+├── reports/
+├── samples/
 │
 ├── backend/
 │   ├── main.py                  # app entry and API routes
@@ -364,4 +369,4 @@ RedPencil's methodology and report reference the following where applicable:
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
 
-> **Ethical Testing Notice:** RedPencil is built for authorized security assessments, hackathon sandbox testing, and defensive auditing.
+> **Ethical Testing Notice:** RedPencil is built for authorized security assessments, sandbox testing, and defensive auditing.

@@ -224,6 +224,8 @@ The backend also serves the frontend, so there is nothing else to start. Open `h
 
 **Import-only mode:** upload a recorded output (for example `samples/nmap_sample.xml` or `samples/nessus_sample.nessus`) instead of running a live scan. Imported findings are labelled as imported in the UI and the report.
 
+**Synthetic demo report:** to generate example JSON, HTML, and PDF artifacts without invoking any security tools, run `python backend/generate_demo_assessment.py` from the repository root. The script uses documentation-only IP addresses, labels all records as simulated, and writes `data/demo_assessment_data.json` and `data/demo_sample_report.*` so it does not overwrite real assessment exports.
+
 **Tracing a finding:** open a finding to see its raw reference, which points to the original tool output stored under `data/`.
 
 ---
@@ -259,6 +261,7 @@ RedPencil/
 │
 ├── backend/
 │   ├── main.py                  # app entry and API routes
+│   ├── generate_demo_assessment.py  # offline synthetic report generator; never runs tools
 │   ├── requirements.txt
 │   ├── models.py                # Finding, ToolRun, Approval, Assessment
 │   │

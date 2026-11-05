@@ -26,6 +26,14 @@
             border-radius: 4px;
             margin-bottom: 20px;
         }
+        .demo-notice {
+            background-color: #fff7ed;
+            border: 1px solid #fdba74;
+            color: #9a3412;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -74,6 +82,11 @@
 <body>
 
     <h1>Vulnerability Assessment &amp; Penetration Testing (VAPT) Report</h1>
+    {% if report_metadata.get('simulated', false) %}
+    <div class="demo-notice">
+        SIMULATED DEMONSTRATION — No scanners were executed. Targets, tool runs, and findings are synthetic examples.
+    </div>
+    {% endif %}
 
     <!-- 7.1 Executive Summary -->
     <h2>7.1 Executive Summary</h2>
@@ -90,11 +103,12 @@
     <!-- 7.2 Assessment Methodology -->
     <h2>7.2 Assessment Methodology</h2>
     <p><strong>Rules of Engagement:</strong> Standard automated reconnaissance, passive discovery, and authorized active scanning within sandbox limits.</p>
-    <p><strong>Tools Executed:</strong> {{ tools_used | join(', ') }}</p>
+    <p><strong>Tools Executed:</strong> {{ tools_executed_summary }}</p>
     <table>
         <thead>
             <tr>
                 <th>Tool Name</th>
+                <th>Mode</th>
                 <th>Run ID</th>
                 <th>Target</th>
                 <th>Execution Status</th>
@@ -103,10 +117,15 @@
         <tbody>
             {% for run in tool_runs %}
             <tr>
-                <td>{{ run.tool_name }}</td>
-                <td>{{ run.run_id }}</td>
+                <td><strong>{{ run.tool_name }}</strong></td>
+                <td>{{ run.mode or 'Not recorded' }}</td>
+                <td><code>{{ run.run_id }}</code></td>
                 <td>{{ run.target }}</td>
-                <td>{{ run.status }}</td>
+                <td>{{ run.status.value or run.status }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No security tools were invoked during this session.</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -141,7 +160,7 @@
     <div class="finding-card">
         <h3>[{{ finding.finding_id }}] {{ finding.title }}</h3>
         <p>
-            <span class="badge badge-{{ finding.severity }}">{{ finding.severity }}</span>
+            <span class="badge badge-{{ finding.severity.value or finding.severity }}">{{ finding.severity.value or finding.severity }}</span>
             <strong>Asset:</strong> {{ finding.asset }}:{{ finding.port }} |
             <strong>Source:</strong> {{ finding.source_tool }} |
             <strong>Confidence:</strong> {{ finding.confidence_level * 100 }}%
@@ -167,8 +186,8 @@
             {% for finding in findings %}
             <tr>
                 <td>{{ finding.title }}</td>
-                <td>Potential unauthorized exposure or service disruption on port {{ finding.port }}.</td>
-                <td>Apply vendor patch updates, restrict port exposure via firewall, and sanitize web inputs.</td>
+                <td>{{ finding.impact or ('Potential exposure or service disruption on port ' ~ (finding.port or 'N/A') ~ '.') }}</td>
+                <td>{{ finding.remediation or 'Review the affected service configuration and apply appropriate vendor guidance.' }}</td>
             </tr>
             {% endfor %}
         </tbody>

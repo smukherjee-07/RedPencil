@@ -5,11 +5,16 @@ execution status, human approval gates, and report downloads.
 """
 
 from pathlib import Path
+import sys
 from typing import List, Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+
+if __package__ in (None, ""):
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from backend.agent.orchestrator import AssessmentOrchestrator
 from backend.agent.planner import AssessmentPlanner
@@ -19,6 +24,10 @@ from backend.models import AssessmentScope, Finding, ToolRun
 from backend.reporting.generator import ReportGenerator
 
 app = FastAPI(title="RedPencil VAPT Agent API")
+frontend_directory = Path(__file__).resolve().parent.parent / "frontend"
+ASSESSMENT_JSON_PATH = (
+    Path(__file__).resolve().parent.parent / "data" / "assessment_data.json"
+)
 
 app.add_middleware(
     CORSMiddleware,
@@ -119,7 +128,9 @@ def generate_report():
         raise HTTPException(status_code=400, detail="No active assessment found.")
 
     generator = ReportGenerator()
-    report_file = "artifacts/sample_report.pdf"
+    report_file = (
+        Path(__file__).resolve().parent.parent / "artifacts" / "sample_report.pdf"
+    )
     output_path = generator.export_pdf(
         scope=GLOBAL_STATE["scope"],
         findings=GLOBAL_STATE["findings"],
@@ -130,9 +141,58 @@ def generate_report():
     return {"message": "Report generated", "path": output_path}
 
 
+@app.get("/api/report/json")
+def download_assessment_json():
+    if not ASSESSMENT_JSON_PATH.is_file():
+        raise HTTPException(
+            status_code=404,
+            detail="Assessment data has not been generated yet.",
+        )
+    return FileResponse(
+        ASSESSMENT_JSON_PATH,
+        filename="RedPencil_Assessment_Data.json",
+        media_type="application/json",
+    )
+
+
 @app.get("/api/report/download")
 def download_report():
-    path = GLOBAL_STATE["latest_report_path"] or "artifacts/sample_report.pdf"
-    if not Path(path).exists():
+    if GLOBAL_STATE["latest_report_path"]:
+        path = Path(GLOBAL_STATE["latest_report_path"])
+    else:
+        artifacts_directory = Path(__file__).resolve().parent.parent / "artifacts"
+        path = artifacts_directory / "sample_report.pdf"
+        if not path.is_file():
+            path = artifacts_directory / "sample_report.html"
+
+    if not path.is_file():
         raise HTTPException(status_code=404, detail="Report file not found.")
-    return FileResponse(path, filename=Path(path).name)
+    if path.suffix.lower() == ".pdf":
+        return FileResponse(
+            path,
+            filename="RedPencil_VAPT_Report.pdf",
+            media_type="application/pdf",
+        )
+    return FileResponse(
+        path,
+        filename="RedPencil_VAPT_Report.html",
+        media_type="text/html",
+    )
+
+
+@app.get("/")
+def frontend():
+    return FileResponse(frontend_directory / "index.html")
+
+
+app.mount(
+    "/static",
+    StaticFiles(directory=frontend_directory),
+    name="frontend-static",
+)
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="127.0.0.1", port=8000)

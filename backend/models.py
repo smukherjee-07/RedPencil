@@ -56,6 +56,8 @@ class Finding(BaseModel):
     cve_id: Optional[str] = None
     cwe_id: Optional[str] = None
     supporting_evidence: str
+    impact: Optional[str] = None
+    remediation: Optional[str] = None
     raw_reference: Optional[Dict[str, Any]] = None
     confidence_level: float = Field(
         1.0, ge=0.0, le=1.0, description="Confidence score from 0.0 to 1.0"
@@ -69,6 +71,7 @@ class ToolRun(BaseModel):
     tool_name: str
     target: str
     command_or_mode: str
+    mode: Optional[str] = None
     status: ToolStatus = ToolStatus.PENDING
     rationale: str
     start_time: datetime = Field(default_factory=datetime.utcnow)

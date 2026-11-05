@@ -70,6 +70,8 @@ def test_report_contains_mandatory_sections():
     assert "Tools Represented in Records:</strong> OWASP ZAP" in html_output
     assert "RECORDED EVIDENCE IMPORT" in html_output
     assert "No live scans were launched by RedPencil" in html_output
+    assert "CWE: CWE-79" in html_output
+    assert "N/A / N/A" not in html_output
     assert "<td><strong>OWASP ZAP</strong></td>" in html_output
     assert "<td>COMPLETED</td>" in html_output
 
@@ -111,3 +113,43 @@ def test_full_assessment_json_includes_tools_scope_and_findings(tmp_path):
     assert record["tools_executed"][0]["status"] == "COMPLETED"
     assert record["total_findings"] == 1
     assert record["findings"][0]["severity"] == "HIGH"
+
+
+def test_impact_table_renders_one_aligned_row_per_finding():
+    scope = AssessmentScope(authorized_targets=["10.0.0.5"])
+    findings = [
+        Finding(
+            finding_id=f"find-{index}",
+            source_tool="Nikto",
+            asset="10.0.0.5",
+            title=title,
+            description="Observed in recorded output.",
+            supporting_evidence="Recorded evidence.",
+            impact=f"Impact for {title}.",
+            remediation=f"Remediate {title}.",
+        )
+        for index, title in enumerate(("First finding", "Second finding"), start=1)
+    ]
+
+    html_output = ReportGenerator().generate_html_report(scope, findings, [])
+    impact_section = html_output.split("<!-- 7.5 Impact and Remediation -->", 1)[1].split("<!-- 7.6 Assessment Limitations -->", 1)[0]
+
+    assert impact_section.count("<tr>") == 3
+    assert impact_section.count("<tr>") == impact_section.count("</tr>")
+    assert impact_section.index("<td>First finding</td>") < impact_section.index("<td>Second finding</td>")
+
+
+def test_report_omits_identifier_line_when_ids_are_absent():
+    finding = Finding(
+        finding_id="find-no-ids",
+        source_tool="Nikto",
+        asset="10.0.0.5",
+        title="Observed web configuration",
+        description="Configuration observation.",
+        supporting_evidence="Recorded evidence.",
+    )
+    html_output = ReportGenerator().generate_html_report(
+        AssessmentScope(authorized_targets=["10.0.0.5"]), [finding], []
+    )
+
+    assert "<strong>Identifiers:</strong>" not in html_output

@@ -2,28 +2,28 @@
   "host": "192.168.10.20",
   "ip": "192.168.10.20",
   "port": 80,
-  "banner": "Apache/2.4.49 (Unix)",
+  "banner": "nginx/1.18.0",
   "vulnerabilities": [
     {
-      "id": "000001",
+      "id": "NIKTO-00101",
       "method": "GET",
-      "url": "/cgi-bin/.%2e/.%2e/etc/passwd",
-      "msg": "Apache 2.4.49 path traversal and arbitrary file read detected via URI normalization flaw.",
+      "url": "/admin/",
+      "msg": "Administrative control interface accessible without network access restrictions.",
       "osvdb": "0"
     },
     {
-      "id": "000002",
+      "id": "NIKTO-00102",
+      "method": "GET",
+      "url": "/.env",
+      "msg": "Potential sensitive configuration file discovered at root path.",
+      "osvdb": "0"
+    },
+    {
+      "id": "NIKTO-00103",
       "method": "GET",
       "url": "/",
-      "msg": "The anti-clickjacking X-Frame-Options header is not present.",
+      "msg": "The Content-Security-Policy HTTP header is not implemented.",
       "osvdb": "0"
-    },
-    {
-      "id": "000003",
-      "method": "GET",
-      "url": "/icons/README",
-      "msg": "Directory indexing enabled or default README file found under /icons/.",
-      "osvdb": "3233"
     }
   ]
 }

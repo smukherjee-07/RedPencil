@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<nmaprun scanner="nmap" args="nmap -sV -T4 192.168.10.20" start="1773130000" version="7.94">
+<nmaprun scanner="nmap" args="nmap -sV -T4 192.168.10.20" start="1773145000" version="7.94">
   <host>
     <status state="up" reason="arp-response"/>
     <address addr="192.168.10.20" addrtype="ipv4"/>
@@ -7,13 +7,13 @@
       <hostname name="lab-target.local" type="user"/>
     </hostnames>
     <ports>
-      <port protocol="tcp" portid="22">
+      <port protocol="tcp" portid="21">
         <state state="open" reason="syn-ack"/>
-        <service name="ssh" product="OpenSSH" version="8.2p1 Ubuntu 4ubuntu0.5" method="probed" conf="10"/>
+        <service name="ftp" product="vsftpd" version="2.3.4" method="probed" conf="10"/>
       </port>
       <port protocol="tcp" portid="80">
         <state state="open" reason="syn-ack"/>
-        <service name="http" product="Apache httpd" version="2.4.49" method="probed" conf="10"/>
+        <service name="http" product="nginx" version="1.18.0" method="probed" conf="10"/>
       </port>
     </ports>
   </host>

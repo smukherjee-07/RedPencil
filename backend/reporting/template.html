@@ -171,7 +171,13 @@
             <strong>Validation:</strong> {{ finding.validation_status.value or finding.validation_status }} |
             <strong>Observed:</strong> {{ finding.timestamp }}
         </p>
-        <p><strong>Identifiers:</strong> {{ finding.cve_id or 'N/A' }} / {{ finding.cwe_id or 'N/A' }}</p>
+        {% if finding.cve_id or finding.cwe_id %}
+        <p><strong>Identifiers:</strong>
+            {% if finding.cve_id %}CVE: {{ finding.cve_id }}{% endif %}
+            {% if finding.cve_id and finding.cwe_id %} | {% endif %}
+            {% if finding.cwe_id %}CWE: {{ finding.cwe_id }}{% endif %}
+        </p>
+        {% endif %}
         <p><strong>Description:</strong> {{ finding.description }}</p>
         <p><strong>Supporting Evidence:</strong></p>
         <pre>{{ finding.supporting_evidence }}</pre>

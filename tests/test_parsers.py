@@ -1,5 +1,6 @@
 """Tests for parsing supported recorded tool output formats."""
 
+import json
 import pytest
 
 from backend.adapters.nessus import NessusAdapter
@@ -47,6 +48,44 @@ def test_nikto_import_parses_json_observations():
 	assert findings[0].title == "Server header observed"
 	assert findings[0].severity == Severity.LOW
 	assert "https://192.0.2.10/" in findings[0].supporting_evidence
+	assert findings[0].port == 443
+
+
+def test_nikto_import_uses_root_port_then_http_default():
+	root_port_result = NiktoAdapter().parse(
+		'{"port":8080,"vulnerabilities":[{"msg":"Server header observed"}]}',
+		"192.0.2.10",
+	)
+	item_port_result = NiktoAdapter().parse(
+		'{"port":8080,"vulnerabilities":[{"msg":"Server header observed","port":9090}]}',
+		"192.0.2.10",
+	)
+	http_default_result = NiktoAdapter().parse(
+		'{"vulnerabilities":[{"msg":"Server header observed"}]}',
+		"192.0.2.10",
+	)
+
+	assert root_port_result[0].port == 8080
+	assert item_port_result[0].port == 9090
+	assert http_default_result[0].port == 80
+
+
+@pytest.mark.parametrize(
+	("message", "expected"),
+	[
+		("Path traversal exposes /etc/passwd", Severity.HIGH),
+		("Sensitive configuration /.env exposes DB_PASSWORD", Severity.CRITICAL),
+		("Unauthenticated admin panel exposed", Severity.MEDIUM),
+		("Admin login page is available", Severity.INFO),
+	],
+)
+def test_nikto_import_maps_known_web_risk_patterns(message, expected):
+	findings = NiktoAdapter().parse(
+		json.dumps({"vulnerabilities": [{"msg": message}]}),
+		"192.0.2.10",
+	)
+
+	assert findings[0].severity == expected
 
 
 def test_zap_import_parses_risk_and_cwe():
@@ -58,6 +97,21 @@ def test_zap_import_parses_risk_and_cwe():
 	assert findings[0].severity == Severity.MEDIUM
 	assert findings[0].cwe_id == "CWE-79"
 	assert "reflected value" in findings[0].supporting_evidence
+
+
+def test_zap_import_infers_severity_from_exposed_sensitive_file_evidence():
+	raw_json = json.dumps({
+		"alerts": [{
+			"name": "Informational response",
+			"riskcode": "0",
+			"url": "https://192.0.2.10/.env",
+			"evidence": "DB_PASSWORD is exposed",
+		}]
+	})
+
+	findings = ZAPAdapter().parse(raw_json, "192.0.2.10")
+
+	assert findings[0].severity == Severity.CRITICAL
 
 
 @pytest.mark.parametrize(

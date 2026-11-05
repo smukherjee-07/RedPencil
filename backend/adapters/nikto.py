@@ -7,6 +7,7 @@ import uuid
 
 from backend.adapters.base import BaseAdapter
 from backend.models import Finding, Severity, ToolRun, ToolStatus, ValidationStatus
+from backend.pipeline.normalizer import infer_web_severity
 
 
 class NiktoAdapter(BaseAdapter):
@@ -41,13 +42,22 @@ class NiktoAdapter(BaseAdapter):
 		for item in vulnerabilities:
 			url = str(item.get("url") or "")
 			parsed_url = urlsplit(url)
-			port_text = str(item.get("port") or parsed_url.port or "")
 			try:
-				port = int(port_text) if port_text else None
+				url_port = parsed_url.port
 			except ValueError:
-				port = None
+				url_port = None
+			scheme_port = 443 if parsed_url.scheme.casefold() == "https" else 80
+			port_text = str(item.get("port") or data.get("port") or url_port or scheme_port)
+			try:
+				port = int(port_text)
+				if not 1 <= port <= 65535:
+					port = 80
+			except (TypeError, ValueError):
+				port = 80
 			message = str(item.get("msg") or item.get("message") or item.get("description") or "Nikto observation")
-			evidence = "\n".join(part for part in (url, str(item.get("method") or ""), message) if part)
+			evidence_detail = str(item.get("evidence") or "")
+			evidence = "\n".join(part for part in (url, str(item.get("method") or ""), message, evidence_detail) if part)
+			severity_context = " ".join((message, url, evidence_detail))
 			findings.append(
 				Finding(
 					finding_id=f"nikto-{uuid.uuid4().hex[:8]}",
@@ -56,7 +66,7 @@ class NiktoAdapter(BaseAdapter):
 					port=port,
 					title=message[:200],
 					description=message,
-					severity=self._severity(item.get("severity", "INFO")),
+					severity=infer_web_severity(self._severity(item.get("severity", "INFO")), severity_context),
 					supporting_evidence=evidence,
 					confidence_level=0.75,
 					validation_status=ValidationStatus.SUSPECTED,

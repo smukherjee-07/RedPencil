@@ -10,6 +10,7 @@ import uuid
 
 from backend.adapters.base import BaseAdapter
 from backend.models import Finding, Severity, ToolRun, ToolStatus, ValidationStatus
+from backend.pipeline.normalizer import infer_web_severity
 
 
 class ZAPAdapter(BaseAdapter):
@@ -46,6 +47,10 @@ class ZAPAdapter(BaseAdapter):
             raise ValueError("ZAP alerts have an invalid structure.")
 
         for alert in alerts:
+            severity_context = " ".join(
+                str(alert.get(field) or "")
+                for field in ("name", "desc", "url", "attack", "evidence")
+            )
             finding = Finding(
                 finding_id=f"zap-{uuid.uuid4().hex[:8]}",
                 source_tool="OWASP ZAP",
@@ -53,7 +58,10 @@ class ZAPAdapter(BaseAdapter):
                 port=int(alert.get("port", 80)) if str(alert.get("port", "")).isdigit() else 80,
                 title=alert.get("name", "Web Vulnerability"),
                 description=alert.get("desc", ""),
-                severity=self._map_severity(alert.get("riskcode", "0")),
+                severity=infer_web_severity(
+                    self._map_severity(alert.get("riskcode", "0")),
+                    severity_context,
+                ),
                 cwe_id=f"CWE-{alert.get('cweid')}" if alert.get("cweid") else None,
                 supporting_evidence=f"URL: {alert.get('url')}\nAttack: {alert.get('attack')}\nEvidence: {alert.get('evidence')}",
                 confidence_level=0.85,

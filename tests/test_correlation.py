@@ -27,6 +27,28 @@ def test_deduplication_combines_evidence():
     assert "Server: Apache/2.4.29" in deduped[0].supporting_evidence
 
 
+def test_deduplication_preserves_all_raw_source_references():
+    findings = [
+        Finding(
+            finding_id="1", source_tool="Nessus", asset="10.0.0.5", port=443,
+            title="Same issue", description="first", supporting_evidence="evidence one",
+            raw_reference={"file": "imports/one.xml", "original_filename": "one.xml"},
+        ),
+        Finding(
+            finding_id="2", source_tool="Nessus", asset="10.0.0.5", port=443,
+            title="Same issue", description="second", supporting_evidence="evidence two",
+            raw_reference={"file": "imports/two.xml", "original_filename": "two.xml"},
+        ),
+    ]
+
+    deduped = Correlator.deduplicate(findings)
+
+    assert len(deduped) == 1
+    assert [source["file"] for source in deduped[0].raw_reference["sources"]] == [
+        "imports/one.xml", "imports/two.xml"
+    ]
+
+
 def test_grounding_rejects_hallucinated_cve():
     finding = Finding(
         finding_id="3", source_tool="ZAP", asset="10.0.0.5", port=443,

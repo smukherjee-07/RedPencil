@@ -4,7 +4,7 @@ Adapter for web application and API security scanning via OWASP ZAP.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List
 import uuid
 
@@ -30,9 +30,20 @@ class ZAPAdapter(BaseAdapter):
         try:
             data = json.loads(raw_output)
         except json.JSONDecodeError:
-            return findings
+            raise ValueError("Input is not valid JSON.") from None
 
-        alerts = data.get("site", [{}])[0].get("alerts", []) if isinstance(data.get("site"), list) else data.get("alerts", [])
+        if not isinstance(data, dict):
+            raise ValueError("ZAP export must be a JSON object.")
+
+        sites = data.get("site")
+        if sites is not None:
+            if not isinstance(sites, list) or any(not isinstance(site, dict) for site in sites):
+                raise ValueError("ZAP site data has an invalid structure.")
+            alerts = [alert for site in sites for alert in site.get("alerts", [])]
+        else:
+            alerts = data.get("alerts", [])
+        if not isinstance(alerts, list) or any(not isinstance(alert, dict) for alert in alerts):
+            raise ValueError("ZAP alerts have an invalid structure.")
 
         for alert in alerts:
             finding = Finding(
@@ -47,7 +58,7 @@ class ZAPAdapter(BaseAdapter):
                 supporting_evidence=f"URL: {alert.get('url')}\nAttack: {alert.get('attack')}\nEvidence: {alert.get('evidence')}",
                 confidence_level=0.85,
                 validation_status=ValidationStatus.SUSPECTED,
-                timestamp=datetime.utcnow()
+                timestamp=datetime.now(timezone.utc)
             )
             findings.append(finding)
 
@@ -58,7 +69,8 @@ class ZAPAdapter(BaseAdapter):
             run_id=uuid.uuid4().hex,
             tool_name=self.tool_name,
             target=target,
-            command_or_mode=f"zap-baseline.py -t {target}",
-            status=ToolStatus.COMPLETED,
-            rationale="Automated web spider and active vulnerability scan."
+            command_or_mode="Import-only adapter; live execution is not implemented.",
+            mode="Unsupported live execution",
+            status=ToolStatus.BLOCKED,
+            rationale="This prototype imports recorded ZAP JSON and does not launch scanners."
         )

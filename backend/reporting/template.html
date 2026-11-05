@@ -86,6 +86,10 @@
     <div class="demo-notice">
         SIMULATED DEMONSTRATION — No scanners were executed. Targets, tool runs, and findings are synthetic examples.
     </div>
+    {% elif report_metadata.get('execution_type') == 'recorded_evidence_import' %}
+    <div class="demo-notice">
+        RECORDED EVIDENCE IMPORT — RedPencil parsed analyst-provided tool output. RedPencil did not execute scanners or independently verify authorization or findings.
+    </div>
     {% endif %}
 
     <!-- 7.1 Executive Summary -->
@@ -93,17 +97,17 @@
     <div class="meta-box">
         <p><strong>Target Scope:</strong> {{ target_scope | join(', ') }}</p>
         <p><strong>Assessment Date:</strong> {{ generated_at }}</p>
-        <p><strong>Total Vulnerabilities Identified:</strong> {{ findings | length }}</p>
+        <p><strong>Findings Imported:</strong> {{ findings | length }}</p>
+        <p><strong>Assessment Objective:</strong> {{ report_metadata.get('prompt_objective', 'Not recorded') }}</p>
     </div>
     <p>
-        This document provides the technical assessment and risk analysis executed by the RedPencil automated VAPT agent.
-        Testing strictly observed authorized boundaries and regulatory evaluation protocols.
+        This report summarizes the recorded evidence listed below. Authorization must be confirmed by the assessment owner; this report is not a certification or compliance attestation.
     </p>
 
     <!-- 7.2 Assessment Methodology -->
     <h2>7.2 Assessment Methodology</h2>
-    <p><strong>Rules of Engagement:</strong> Standard automated reconnaissance, passive discovery, and authorized active scanning within sandbox limits.</p>
-    <p><strong>Tools Executed:</strong> {{ tools_executed_summary }}</p>
+    <p><strong>Rules of Engagement:</strong> Analyst-supplied scope; authorization and testing permissions must be verified outside this prototype. No live scans were launched by RedPencil.</p>
+    <p><strong>Tools Represented in Records:</strong> {{ tools_executed_summary }}</p>
     <table>
         <thead>
             <tr>
@@ -163,12 +167,22 @@
             <span class="badge badge-{{ finding.severity.value or finding.severity }}">{{ finding.severity.value or finding.severity }}</span>
             <strong>Asset:</strong> {{ finding.asset }}:{{ finding.port }} |
             <strong>Source:</strong> {{ finding.source_tool }} |
-            <strong>Confidence:</strong> {{ finding.confidence_level * 100 }}%
+            <strong>Confidence:</strong> {{ finding.confidence_level * 100 }}% |
+            <strong>Validation:</strong> {{ finding.validation_status.value or finding.validation_status }} |
+            <strong>Observed:</strong> {{ finding.timestamp }}
         </p>
         <p><strong>Identifiers:</strong> {{ finding.cve_id or 'N/A' }} / {{ finding.cwe_id or 'N/A' }}</p>
         <p><strong>Description:</strong> {{ finding.description }}</p>
         <p><strong>Supporting Evidence:</strong></p>
         <pre>{{ finding.supporting_evidence }}</pre>
+        {% if finding.raw_reference %}
+        <p><strong>Raw source files:</strong></p>
+        <ul>
+            {% for source in finding.raw_reference.get('sources', [finding.raw_reference]) %}
+            <li>{{ source.get('file', 'Not recorded') }} ({{ source.get('original_filename', 'source file') }})</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
     </div>
     {% endfor %}
 
@@ -196,8 +210,14 @@
     <!-- 7.6 Assessment Limitations -->
     <h2>7.6 Assessment Limitations</h2>
     <ul>
-        <li>Testing was constrained strictly to defined targets: {{ target_scope | join(', ') }}.</li>
-        <li>Active offensive exploitation tools required manual analyst approval checkpoints.</li>
+        <li>Scope supplied by analyst: {{ target_scope | join(', ') }}. The application does not independently verify authorization.</li>
+        <li>Recorded imports only; no live scanning, active validation, or retesting was performed.</li>
+        <li>Imported findings retain the scanner's reported status; RedPencil did not independently validate them.</li>
+        {% for approval in report_metadata.get('human_approvals', []) %}
+        <li>Human approval {{ 'granted' if approval.get('is_approved') else 'denied' }} for {{ approval.get('tool_name') }} on {{ approval.get('target') }} at {{ approval.get('decided_at') }}. Notes: {{ approval.get('analyst_notes') or 'None recorded' }}.</li>
+        {% else %}
+        <li>No human approval decisions were recorded.</li>
+        {% endfor %}
         <li>Assessment completed at {{ generated_at }}.</li>
     </ul>
 

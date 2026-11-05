@@ -1,0 +1,29 @@
+{
+  "host": "192.168.10.20",
+  "ip": "192.168.10.20",
+  "port": 80,
+  "banner": "nginx/1.18.0",
+  "vulnerabilities": [
+    {
+      "id": "NIKTO-00101",
+      "method": "GET",
+      "url": "/admin/",
+      "msg": "Administrative control interface accessible without network access restrictions.",
+      "osvdb": "0"
+    },
+    {
+      "id": "NIKTO-00102",
+      "method": "GET",
+      "url": "/.env",
+      "msg": "Potential sensitive configuration file discovered at root path.",
+      "osvdb": "0"
+    },
+    {
+      "id": "NIKTO-00103",
+      "method": "GET",
+      "url": "/",
+      "msg": "The Content-Security-Policy HTTP header is not implemented.",
+      "osvdb": "0"
+    }
+  ]
+}

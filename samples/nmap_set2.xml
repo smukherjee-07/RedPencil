@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nmaprun scanner="nmap" args="nmap -sV -T4 192.168.10.20" start="1773145000" version="7.94">
+  <host>
+    <status state="up" reason="arp-response"/>
+    <address addr="192.168.10.20" addrtype="ipv4"/>
+    <hostnames>
+      <hostname name="lab-target.local" type="user"/>
+    </hostnames>
+    <ports>
+      <port protocol="tcp" portid="21">
+        <state state="open" reason="syn-ack"/>
+        <service name="ftp" product="vsftpd" version="2.3.4" method="probed" conf="10"/>
+      </port>
+      <port protocol="tcp" portid="80">
+        <state state="open" reason="syn-ack"/>
+        <service name="http" product="nginx" version="1.18.0" method="probed" conf="10"/>
+      </port>
+    </ports>
+  </host>
+</nmaprun>

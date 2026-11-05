@@ -51,7 +51,12 @@ def test_report_contains_mandatory_sections():
     )
 
     generator = ReportGenerator()
-    html_output = generator.generate_html_report(scope, [finding], [tool_run])
+    html_output = generator.generate_html_report(
+        scope,
+        [finding],
+        [tool_run],
+        report_metadata={"execution_type": "recorded_evidence_import"},
+    )
 
     # Assert presence of required sections from Section 7 of the problem statement
     assert "7.1 Executive Summary" in html_output
@@ -62,7 +67,9 @@ def test_report_contains_mandatory_sections():
     assert "7.6 Assessment Limitations" in html_output
     assert "Cross-Site Scripting" in html_output
     assert "Payload reflection in q parameter." in html_output
-    assert "Tools Executed:</strong> OWASP ZAP" in html_output
+    assert "Tools Represented in Records:</strong> OWASP ZAP" in html_output
+    assert "RECORDED EVIDENCE IMPORT" in html_output
+    assert "No live scans were launched by RedPencil" in html_output
     assert "<td><strong>OWASP ZAP</strong></td>" in html_output
     assert "<td>COMPLETED</td>" in html_output
 

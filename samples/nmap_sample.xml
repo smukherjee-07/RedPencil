@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE nmaprun>
 <nmaprun scanner="nmap" args="nmap -sV -T4 192.168.10.20" start="1773130000" version="7.94">
   <host>
     <status state="up" reason="arp-response"/>

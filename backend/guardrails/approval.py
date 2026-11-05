@@ -3,7 +3,7 @@ backend/guardrails/approval.py
 Enforces mandatory human analyst signoff before active validation runs.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Optional
 import uuid
 
@@ -38,7 +38,7 @@ class ApprovalGate:
             proposed_action=proposed_action,
             risk_summary=risk_summary,
             is_approved=None,
-            requested_at=datetime.utcnow()
+            requested_at=datetime.now(timezone.utc)
         )
         self.pending_approvals[approval_id] = request
         self.audit_logger.log_event("APPROVAL_REQUEST_CREATED", request.model_dump())
@@ -57,7 +57,7 @@ class ApprovalGate:
         request = self.pending_approvals.pop(approval_id)
         request.is_approved = approved
         request.analyst_notes = analyst_notes
-        request.decided_at = datetime.utcnow()
+        request.decided_at = datetime.now(timezone.utc)
         self.decided_approvals[approval_id] = request
 
         self.audit_logger.log_approval_action(

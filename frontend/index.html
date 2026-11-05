@@ -33,18 +33,43 @@
                 <label for="excludedInput">Excluded Targets</label>
                 <input type="text" id="excludedInput" placeholder="192.168.1.50">
 
-                <button type="submit" class="btn primary" id="startBtn">Launch Assessment</button>
+                <label for="modelSelect">Reasoning Model (local Ollama)</label>
+                <select id="modelSelect" aria-describedby="modelStatus" disabled>
+                    <option value="">Checking local models...</option>
+                </select>
+                <small id="modelStatus" class="model-status" role="status">Checking local Ollama...</small>
+
+                <button type="submit" class="btn primary" id="startBtn">Plan Assessment</button>
             </form>
 
-            <h3>Agent Reasoning &amp; Execution Plan</h3>
+            <h3>Agent Reasoning &amp; Proposed Plan</h3>
             <div id="planOutput" class="console-box">Awaiting task initiation...</div>
+
+            <h3>Import Recorded Tool Output</h3>
+            <form id="evidenceForm">
+                <label for="evidenceTool">Source tool</label>
+                <select id="evidenceTool" required>
+                    <option value="Nmap">Nmap XML</option>
+                    <option value="Nessus">Nessus XML</option>
+                    <option value="Nikto">Nikto JSON</option>
+                    <option value="OWASP ZAP">OWASP ZAP JSON</option>
+                </select>
+
+                <label for="evidenceTarget">In-scope asset</label>
+                <input type="text" id="evidenceTarget" placeholder="Must match an assessment target or in-scope host" required>
+
+                <label for="evidenceFile">Recorded result file</label>
+                <input type="file" id="evidenceFile" accept=".xml,.json,application/xml,application/json,text/xml" required>
+
+                <button type="submit" class="btn secondary" id="importEvidenceBtn">Import Evidence</button>
+            </form>
         </section>
 
         <!-- Tool Execution Timeline & Findings Feed -->
         <section class="card results-pane">
-            <h2>Live Status Feed</h2>
+            <h2>Assessment Status</h2>
             <div id="executionTimeline" class="timeline-list">
-                <div class="empty-state">No scans in progress.</div>
+                <div class="empty-state">No live scans have been run. Import recorded results to analyze evidence.</div>
             </div>
 
             <h2>Normalized Findings</h2>
@@ -57,10 +82,13 @@
                             <th>Asset</th>
                             <th>Tool</th>
                             <th>Finding</th>
+                            <th>Confidence</th>
+                            <th>Validation</th>
+                            <th>Evidence / Source</th>
                         </tr>
                     </thead>
                     <tbody id="findingsBody">
-                        <tr><td colspan="5" class="empty-state">No vulnerabilities discovered yet.</td></tr>
+                        <tr><td colspan="8" class="empty-state">No findings loaded.</td></tr>
                     </tbody>
                 </table>
             </div>

@@ -43,6 +43,16 @@ class Correlator:
                 existing.supporting_evidence += f"\n[{f.source_tool} Evidence]: {f.supporting_evidence}"
                 if f.source_tool not in existing.source_tool:
                     existing.source_tool += f", {f.source_tool}"
+                if f.raw_reference:
+                    existing_reference = existing.raw_reference or {}
+                    existing_sources = existing_reference.get(
+                        "sources", [existing_reference] if existing_reference else []
+                    )
+                    incoming_sources = f.raw_reference.get("sources", [f.raw_reference])
+                    existing.raw_reference = {
+                        **existing_reference,
+                        "sources": existing_sources + incoming_sources,
+                    }
                 
                 # Prioritize higher confidence
                 existing.confidence_level = max(existing.confidence_level, f.confidence_level)

@@ -4,7 +4,7 @@ Append-only audit trail capturing agent reasoning, actions, and human approvals.
 """
 
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict
 
@@ -17,12 +17,18 @@ class AuditLogger:
     def log_event(self, event_type: str, details: Dict[str, Any]) -> None:
         """Appends an event record atomically to the audit file."""
         record = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "event_type": event_type,
             "details": details,
         }
         with open(self.log_path, mode="a", encoding="utf-8") as file:
-            file.write(json.dumps(record) + "\n")
+            file.write(json.dumps(record, default=self._json_default) + "\n")
+
+    @staticmethod
+    def _json_default(value: Any) -> str:
+        if isinstance(value, datetime):
+            return value.isoformat()
+        raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")
 
     def log_analyst_request(self, request_text: str, target: str) -> None:
         self.log_event("ANALYST_REQUEST", {"request": request_text, "target": target})

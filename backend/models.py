@@ -3,7 +3,7 @@ backend/models.py
 Core data contracts and schemas across RedPencil.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
@@ -63,7 +63,7 @@ class Finding(BaseModel):
         1.0, ge=0.0, le=1.0, description="Confidence score from 0.0 to 1.0"
     )
     validation_status: ValidationStatus = ValidationStatus.SUSPECTED
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class ToolRun(BaseModel):
@@ -74,7 +74,7 @@ class ToolRun(BaseModel):
     mode: Optional[str] = None
     status: ToolStatus = ToolStatus.PENDING
     rationale: str
-    start_time: datetime = Field(default_factory=datetime.utcnow)
+    start_time: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     end_time: Optional[datetime] = None
     error_message: Optional[str] = None
 
@@ -87,5 +87,5 @@ class ApprovalRequest(BaseModel):
     risk_summary: str
     is_approved: Optional[bool] = None
     analyst_notes: Optional[str] = None
-    requested_at: datetime = Field(default_factory=datetime.utcnow)
+    requested_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     decided_at: Optional[datetime] = None

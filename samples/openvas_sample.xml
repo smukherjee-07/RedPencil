@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report id="openvas-report-001">
+  <report format_id="5057e5cc-b825-11e4-9d0e-28d24461215b">
+    <results>
+      <result id="res-01">
+        <name>Apache HTTP Server Multiple Vulnerabilities (Oct 21)</name>
+        <host>192.168.10.20</host>
+        <port>80/tcp</port>
+        <threat>High</threat>
+        <severity>8.6</severity>
+        <description>Apache HTTP Server version 2.4.49 is prone to a path traversal vulnerability.</description>
+        <nvt>
+          <cve>CVE-2021-41773</cve>
+          <cvss_base>8.6</cvss_base>
+        </nvt>
+      </result>
+      <result id="res-02">
+        <name>Missing Strict-Transport-Security Header</name>
+        <host>192.168.10.20</host>
+        <port>80/tcp</port>
+        <threat>Low</threat>
+        <severity>2.5</severity>
+        <description>The remote web server is not configured to send the HTTP Strict-Transport-Security (HSTS) header.</description>
+        <nvt>
+          <cve>NOCVE</cve>
+          <cvss_base>2.5</cvss_base>
+        </nvt>
+      </result>
+    </results>
+  </report>
+</report>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE issues SYSTEM "https://burp.portswigger.net/burp/issues.dtd">
+<issues burpVersion="2024.1.1">
+  <issue>
+    <serialNumber>1029384756</serialNumber>
+    <type>0x00200100</type>
+    <name>Path traversal</name>
+    <host ip="192.168.10.20">http://192.168.10.20</host>
+    <path>/cgi-bin/.%2e/.%2e/etc/passwd</path>
+    <location>/cgi-bin/.%2e/.%2e/etc/passwd</location>
+    <severity>High</severity>
+    <confidence>Certain</confidence>
+    <issueBackground>Path traversal vulnerabilities arise when an application uses user-controllable data to access files on the filesystem.</issueBackground>
+    <issueDetail>By requesting the URL /cgi-bin/.%2e/.%2e/etc/passwd, the server returned the local password file.</issueDetail>
+    <remediationBackground>Upgrade the underlying web server to a secure patch release.</remediationBackground>
+    <vulnerabilityClassifications>CWE-22</vulnerabilityClassifications>
+  </issue>
+  <issue>
+    <serialNumber>1029384757</serialNumber>
+    <type>0x00500100</type>
+    <name>Content Security Policy (CSP) not enforced</name>
+    <host ip="192.168.10.20">http://192.168.10.20</host>
+    <path>/</path>
+    <location>/</location>
+    <severity>Low</severity>
+    <confidence>Firm</confidence>
+    <issueBackground>Content Security Policy is an effective defense against Cross-Site Scripting (XSS) and data injection attacks.</issueBackground>
+    <remediationBackground>Configure a valid Content-Security-Policy HTTP header on all responses.</remediationBackground>
+    <vulnerabilityClassifications>CWE-693</vulnerabilityClassifications>
+  </issue>
+</issues>
